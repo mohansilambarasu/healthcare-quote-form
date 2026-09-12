@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
+import ContactCard from "../components/ContactCard";
 import TextField from "../components/TextField";
 import { useFormContext } from "../form/FormContext";
 import { useStepNavigation } from "../form/useStepNavigation";
@@ -13,7 +14,7 @@ import {
 const CONTACTS = [
   {
     key: "ceo",
-    label: "CEO",
+    label: "Chief Executive Officer (CEO)",
     required: true,
   },
   {
@@ -83,7 +84,7 @@ const STATES = [
 ];
 
 export default function LeadershipStep() {
-  const { formData } = useFormContext();
+  const { formData, saveSection } = useFormContext();
 
   const { saveAndBack, saveAndContinue } = useStepNavigation({
     section: "leadershipContacts",
@@ -126,8 +127,11 @@ export default function LeadershipStep() {
 
   const primaryContact = {
     firstName: formData.quoteRequest.firstName,
+
     lastName: formData.quoteRequest.lastName,
+
     phone: formData.quoteRequest.workPhone,
+
     email: formData.quoteRequest.email,
   };
 
@@ -154,10 +158,13 @@ export default function LeadershipStep() {
   }
 
   useEffect(() => {
-    const latestPrimaryContact = {
+    const currentPrimary = {
       firstName: formData.quoteRequest.firstName,
+
       lastName: formData.quoteRequest.lastName,
+
       phone: formData.quoteRequest.workPhone,
+
       email: formData.quoteRequest.email,
     };
 
@@ -172,7 +179,7 @@ export default function LeadershipStep() {
         return;
       }
 
-      Object.entries(latestPrimaryContact).forEach(([field, value]) => {
+      Object.entries(currentPrimary).forEach(([field, value]) => {
         setValue(`${key}.${field}`, value, {
           shouldDirty: true,
           shouldValidate: true,
@@ -249,6 +256,10 @@ export default function LeadershipStep() {
     };
   }
 
+  function handleSave() {
+    saveSection("leadershipContacts", getValues());
+  }
+
   function handleBack() {
     saveAndBack(getValues());
   }
@@ -259,170 +270,235 @@ export default function LeadershipStep() {
 
   return (
     <main>
-      <h1>Leadership Contacts</h1>
-
-      <p>Step 3 of 6</p>
-
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        {CONTACTS.map(({ key, label, required }, index) => {
-          const contactErrors = errors[key];
+        <div className="form-card leadership-contacts__card">
+          <section className="form-section">
+            <div className="form-section__header">
+              <h2 className="form-section__title">Contact Information</h2>
+            </div>
 
-          const sameAsPrimary = Boolean(sameAsPrimaryValues[index]);
+            <div className="leadership-contacts__stack">
+              {CONTACTS.map(({ key, label, required }, index) => {
+                const contactErrors = errors[key];
 
-          return (
-            <fieldset key={key}>
-              <legend>
-                {label}
-                {!required && " (Optional)"}
-              </legend>
+                const sameAsPrimary = Boolean(sameAsPrimaryValues[index]);
 
-              <label>
-                <input
-                  type="checkbox"
-                  {...register(`${key}.sameAsPrimary`, {
-                    onChange: (event) => {
-                      if (event.target.checked) {
-                        copyPrimary(key);
-                      } else {
-                        clearContact(key);
-                      }
-                    },
-                  })}
-                />
-                Same as Primary Contact
-              </label>
+                const sameAsControl = (
+                  <label className="checkbox-field contact-card__same-as">
+                    <input
+                      className="checkbox-field__input"
+                      type="checkbox"
+                      {...register(`${key}.sameAsPrimary`, {
+                        onChange: (event) => {
+                          if (event.target.checked) {
+                            copyPrimary(key);
+                          } else {
+                            clearContact(key);
+                          }
+                        },
+                      })}
+                    />
 
-              <TextField
-                id={`${key}-firstName`}
-                label="First Name"
-                error={contactErrors?.firstName?.message}
-                inputProps={{
-                  readOnly: sameAsPrimary,
+                    <span className="checkbox-field__label">
+                      Same as Primary Contact entered in Step 1
+                    </span>
+                  </label>
+                );
 
-                  ...register(
-                    `${key}.firstName`,
-                    textRules(key, "First Name", required),
-                  ),
-                }}
-              />
+                return (
+                  <ContactCard key={key} title={label} action={sameAsControl}>
+                    <div className="form-row form-row--2">
+                      <TextField
+                        id={`${key}-firstName`}
+                        label="First Name"
+                        required={required}
+                        error={contactErrors?.firstName?.message}
+                        inputProps={{
+                          readOnly: sameAsPrimary,
 
-              <TextField
-                id={`${key}-lastName`}
-                label="Last Name"
-                error={contactErrors?.lastName?.message}
-                inputProps={{
-                  readOnly: sameAsPrimary,
+                          ...register(
+                            `${key}.firstName`,
+                            textRules(key, "First Name", required),
+                          ),
+                        }}
+                      />
 
-                  ...register(
-                    `${key}.lastName`,
-                    textRules(key, "Last Name", required),
-                  ),
-                }}
-              />
+                      <TextField
+                        id={`${key}-lastName`}
+                        label="Last Name"
+                        required={required}
+                        error={contactErrors?.lastName?.message}
+                        inputProps={{
+                          readOnly: sameAsPrimary,
 
-              <TextField
-                id={`${key}-phone`}
-                label="Phone"
-                error={contactErrors?.phone?.message}
-                inputProps={{
-                  type: "tel",
-                  readOnly: sameAsPrimary,
+                          ...register(
+                            `${key}.lastName`,
+                            textRules(key, "Last Name", required),
+                          ),
+                        }}
+                      />
+                    </div>
 
-                  ...register(`${key}.phone`, phoneRules(key, required)),
-                }}
-              />
+                    <TextField
+                      id={`${key}-phone`}
+                      label="Phone"
+                      required={required}
+                      error={contactErrors?.phone?.message}
+                      inputProps={{
+                        type: "tel",
 
-              <TextField
-                id={`${key}-email`}
-                label="Email"
-                error={contactErrors?.email?.message}
-                inputProps={{
-                  type: "email",
-                  readOnly: sameAsPrimary,
+                        readOnly: sameAsPrimary,
 
-                  ...register(`${key}.email`, emailRules(key, required)),
-                }}
-              />
-            </fieldset>
-          );
-        })}
+                        ...register(`${key}.phone`, phoneRules(key, required)),
+                      }}
+                    />
 
-        <fieldset>
-          <legend>Billing Address</legend>
+                    <TextField
+                      id={`${key}-email`}
+                      label="Email"
+                      required={required}
+                      error={contactErrors?.email?.message}
+                      inputProps={{
+                        type: "email",
 
-          <TextField
-            id="streetAddress"
-            label="Street Address"
-            error={errors.billingAddress?.streetAddress?.message}
-            inputProps={{
-              ...register("billingAddress.streetAddress", {
-                required: "Street Address is required.",
-              }),
-            }}
-          />
+                        readOnly: sameAsPrimary,
 
-          <TextField
-            id="city"
-            label="City"
-            error={errors.billingAddress?.city?.message}
-            inputProps={{
-              ...register("billingAddress.city", {
-                required: "City is required.",
-              }),
-            }}
-          />
+                        ...register(`${key}.email`, emailRules(key, required)),
+                      }}
+                    />
 
-          <div>
-            <label htmlFor="state">State</label>
+                    {key === "invoicingContact" && (
+                      <div className="billing-address">
+                        <h4 className="billing-address__title">
+                          Billing Address
+                        </h4>
 
-            <select
-              id="state"
-              {...register("billingAddress.state", {
-                required: "State is required.",
+                        <TextField
+                          id="streetAddress"
+                          label="Street Address"
+                          required
+                          error={errors.billingAddress?.streetAddress?.message}
+                          inputProps={{
+                            ...register("billingAddress.streetAddress", {
+                              required: "Street Address is required.",
+                            }),
+                          }}
+                        />
+
+                        <div className="billing-address__location-row">
+                          <TextField
+                            id="city"
+                            label="City"
+                            required
+                            error={errors.billingAddress?.city?.message}
+                            inputProps={{
+                              ...register("billingAddress.city", {
+                                required: "City is required.",
+                              }),
+                            }}
+                          />
+
+                          <div className="select-field">
+                            <label
+                              className="select-field__label"
+                              htmlFor="state"
+                            >
+                              State
+                              <span
+                                className="form-field__required"
+                                aria-hidden="true"
+                              >
+                                *
+                              </span>
+                            </label>
+
+                            <select
+                              id="state"
+                              className="select-field__control"
+                              {...register("billingAddress.state", {
+                                required: "State is required.",
+                              })}
+                              aria-invalid={
+                                errors.billingAddress?.state
+                                  ? "true"
+                                  : undefined
+                              }
+                              aria-describedby={
+                                errors.billingAddress?.state
+                                  ? "state-error"
+                                  : undefined
+                              }
+                            >
+                              <option value="">Select State</option>
+
+                              {STATES.map((state) => (
+                                <option key={state} value={state}>
+                                  {state}
+                                </option>
+                              ))}
+                            </select>
+
+                            {errors.billingAddress?.state && (
+                              <p
+                                id="state-error"
+                                className="field-error"
+                                role="alert"
+                              >
+                                {errors.billingAddress.state.message}
+                              </p>
+                            )}
+                          </div>
+
+                          <TextField
+                            id="zipCode"
+                            label="ZIP Code"
+                            required
+                            error={errors.billingAddress?.zipCode?.message}
+                            inputProps={{
+                              inputMode: "numeric",
+
+                              ...register("billingAddress.zipCode", {
+                                required: "ZIP Code is required.",
+
+                                validate: (value) =>
+                                  isValidZipCode(value) ||
+                                  "Enter a valid ZIP Code.",
+                              }),
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </ContactCard>
+                );
               })}
-              aria-invalid={errors.billingAddress?.state ? "true" : undefined}
-              aria-describedby={
-                errors.billingAddress?.state ? "state-error" : undefined
-              }
+            </div>
+          </section>
+        </div>
+
+        <div className="form-actions form-actions--leadership">
+          <button
+            className="button button--md button--secondary"
+            type="button"
+            onClick={handleBack}
+          >
+            Previous
+          </button>
+
+          <div className="form-actions__right">
+            <button
+              className="button button--md button--primary"
+              type="button"
+              onClick={handleSave}
             >
-              <option value="">Select state</option>
+              Save
+            </button>
 
-              {STATES.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-
-            {errors.billingAddress?.state && (
-              <p id="state-error" role="alert">
-                {errors.billingAddress.state.message}
-              </p>
-            )}
+            <button className="button button--md button--primary" type="submit">
+              Continue
+            </button>
           </div>
-
-          <TextField
-            id="zipCode"
-            label="ZIP Code"
-            error={errors.billingAddress?.zipCode?.message}
-            inputProps={{
-              inputMode: "numeric",
-
-              ...register("billingAddress.zipCode", {
-                required: "ZIP Code is required.",
-
-                validate: (value) =>
-                  isValidZipCode(value) || "Enter a valid ZIP Code.",
-              }),
-            }}
-          />
-        </fieldset>
-
-        <button type="button" onClick={handleBack}>
-          Previous
-        </button>
-
-        <button type="submit">Continue</button>
+        </div>
       </form>
     </main>
   );

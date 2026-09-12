@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import {
@@ -8,7 +9,9 @@ import { useFormContext } from "../form/FormContext";
 import { useStepNavigation } from "../form/useStepNavigation";
 
 export default function FacilityDetailsStep() {
-  const { formData } = useFormContext();
+  const [stage, setStage] = useState(1);
+
+  const { formData, saveSection } = useFormContext();
 
   const { saveAndBack, saveAndContinue } = useStepNavigation({
     section: "facilityDetails",
@@ -18,8 +21,8 @@ export default function FacilityDetailsStep() {
 
   const {
     register,
-    handleSubmit,
     getValues,
+    trigger,
     formState: { errors },
   } = useForm({
     defaultValues: formData.facilityDetails,
@@ -29,70 +32,132 @@ export default function FacilityDetailsStep() {
     shouldFocusError: true,
   });
 
-  function handleBack() {
-    saveAndBack(getValues());
+  const isPrimaryStage = stage === 1;
+
+  const options = isPrimaryStage
+    ? PRIMARY_FACILITY_TYPES
+    : SECONDARY_FACILITY_TYPES;
+
+  const fieldName = isPrimaryStage ? "facilityType" : "secondaryFacilityType";
+
+  const error = isPrimaryStage
+    ? errors.facilityType
+    : errors.secondaryFacilityType;
+
+  function handleSave() {
+    saveSection("facilityDetails", getValues());
   }
 
-  function onSubmit(values) {
+  function handlePrevious() {
+    const values = getValues();
+
+    if (stage === 2) {
+      saveSection("facilityDetails", values);
+
+      setStage(1);
+      return;
+    }
+
+    saveAndBack(values);
+  }
+
+  async function handleContinue() {
+    const isValid = await trigger(fieldName, {
+      shouldFocus: true,
+    });
+
+    if (!isValid) {
+      return;
+    }
+
+    const values = getValues();
+
+    if (stage === 1) {
+      saveSection("facilityDetails", values);
+
+      setStage(2);
+      return;
+    }
+
     saveAndContinue(values);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    handleContinue();
   }
 
   return (
     <main>
-      <h1>Facility Details</h1>
+      <form onSubmit={handleSubmit} noValidate>
+        <div className="form-card facility-details__card">
+          <section className="form-section">
+            <div className="form-section__header">
+              <h2 className="form-section__title">
+                Facility and Organization Type
+              </h2>
+            </div>
 
-      <p>Step 2 of 6</p>
+            <div className="form-section__content">
+              <fieldset className="radio-group facility-details__radio-group">
+                <legend className="radio-group__legend">
+                  Facility Type
+                  <span className="form-field__required" aria-hidden="true">
+                    *
+                  </span>
+                </legend>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <fieldset>
-          <legend>Primary Facility Type</legend>
+                <div className="radio-group__options">
+                  {options.map((option) => (
+                    <label className="radio-group__option" key={option.value}>
+                      <input
+                        className="radio-group__input"
+                        type="radio"
+                        value={option.value}
+                        {...register(fieldName, {
+                          required: "Select a facility type.",
+                        })}
+                      />
 
-          {PRIMARY_FACILITY_TYPES.map((option) => (
-            <label key={option.value}>
-              <input
-                type="radio"
-                value={option.value}
-                {...register("facilityType", {
-                  required: "Select a primary facility type.",
-                })}
-              />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
 
-              {option.label}
-            </label>
-          ))}
+                {error && (
+                  <p className="field-error" role="alert">
+                    {error.message}
+                  </p>
+                )}
+              </fieldset>
+            </div>
+          </section>
+        </div>
 
-          {errors.facilityType && (
-            <p role="alert">{errors.facilityType.message}</p>
-          )}
-        </fieldset>
+        <div className="form-actions form-actions--facility">
+          <button
+            className="button button--md button--secondary"
+            type="button"
+            onClick={handlePrevious}
+          >
+            Previous
+          </button>
 
-        <fieldset>
-          <legend>Secondary Facility Type</legend>
+          <div className="form-actions__right">
+            <button
+              className="button button--md button--primary"
+              type="button"
+              onClick={handleSave}
+            >
+              Save
+            </button>
 
-          {SECONDARY_FACILITY_TYPES.map((option) => (
-            <label key={option.value}>
-              <input
-                type="radio"
-                value={option.value}
-                {...register("secondaryFacilityType", {
-                  required: "Select a secondary facility type.",
-                })}
-              />
-
-              {option.label}
-            </label>
-          ))}
-
-          {errors.secondaryFacilityType && (
-            <p role="alert">{errors.secondaryFacilityType.message}</p>
-          )}
-        </fieldset>
-
-        <button type="button" onClick={handleBack}>
-          Previous
-        </button>
-
-        <button type="submit">Continue</button>
+            <button className="button button--md button--primary" type="submit">
+              Continue
+            </button>
+          </div>
+        </div>
       </form>
     </main>
   );
