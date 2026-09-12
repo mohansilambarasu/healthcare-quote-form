@@ -1,0 +1,86 @@
+.quote-request__card {
+  gap: 64px;
+}
+
+/* DBA field + checkbox */
+
+.quote-request__dba {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+/* Email verification */
+
+.quote-request__email {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.quote-request__verification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  gap: 16px;
+}
+
+.verification-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 86px;
+  min-height: 23.5px;
+
+  padding: 4px 12px;
+
+  gap: 10px;
+
+  border-radius: 100px;
+
+  background: #fbefc4;
+
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 100%;
+
+  color: #a16800;
+}
+
+.form-actions--quote {
+  margin-top: 262px;
+}
+
+.form-actions--quote .form-actions__right {
+  gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .form-actions--quote {
+    margin-top: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quote-request__verification {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-actions--quote {
+    flex-wrap: wrap;
+
+    margin-top: 48px;
+  }
+
+  .form-actions--quote .form-actions__right {
+    gap: 8px;
+  }
+}

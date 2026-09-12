@@ -1,0 +1,92 @@
+:root {
+  --color-primary: #0056a3;
+  --color-primary-hover: #004785;
+  --color-brand: #1a3a70;
+  --color-header: #002e55;
+
+  --color-page: #f7f7f7;
+  --color-white: #ffffff;
+
+  --color-text: #000000;
+  --color-heading: #343434;
+  --color-step-title: #4e4e4e;
+  --color-muted: #707070;
+  --color-helper: #808080;
+
+  --color-border-control: #bbbbbb;
+  --color-border-hover: #8f8f8f;
+  --color-border-light: #d6d6d6;
+  --color-divider: #ebebeb;
+
+  --color-selected: #e2f0f8;
+  --color-disabled: #f6f6f6;
+
+  --color-error: #ce0829;
+  --color-required: #e5484d;
+
+  --color-status-warning-text: #a16800;
+  --color-status-warning-background: #fbefc4;
+
+  --font-family-base: "Nunito Sans", sans-serif;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --font-size-9: 9px;
+  --font-size-11: 11px;
+  --font-size-12: 12px;
+  --font-size-14: 14px;
+  --font-size-15: 15px;
+  --font-size-16: 16px;
+  --font-size-18: 18px;
+  --font-size-20: 20px;
+  --font-size-24: 24px;
+  --font-size-32: 32px;
+
+  --line-height-tight: 1;
+  --line-height-field-label: 22px;
+  --line-height-error: 20px;
+  --line-height-section-title: 33px;
+  --line-height-contact-title: 27px;
+
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-23: 23px;
+  --space-24: 24px;
+  --space-31: 31px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  --border-width-default: 1px;
+  --border-width-action: 1.5px;
+
+  --radius-input: 6px;
+  --radius-card: 8px;
+  --radius-button: 8px;
+  --radius-dropzone: 10px;
+  --radius-pill: 9999px;
+
+  --input-height: 44px;
+
+  --button-height-sm: 35px;
+  --button-height-md: 48px;
+
+  --header-height: 72px;
+  --content-max-width: 960px;
+  --content-inner-width: 896px;
+
+  --shadow-form-card: 0 1px 5px rgba(0, 0, 0, 0.1);
+  --shadow-card-soft: 0 1px 10px rgba(0, 0, 0, 0.06);
+
+  --transition-fast: 150ms ease;
+  --transition-progress: 250ms ease;
+}

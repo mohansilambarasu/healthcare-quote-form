@@ -1,4 +1,6 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+
+import { useFormContext } from "./form/FormContext";
 
 import FacilityDetailsStep from "./steps/FacilityDetailsStep";
 import LeadershipStep from "./steps/LeadershipStep";
@@ -7,22 +9,141 @@ import ReviewStep from "./steps/ReviewStep";
 import ServicesStep from "./steps/ServicesStep";
 import SiteInformationStep from "./steps/SiteInformationStep";
 
+const STEPS = [
+  {
+    path: "/",
+    title: "New DNV Quote Request",
+    label: "Quote Request",
+  },
+  {
+    path: "/facility",
+    title: "Facility Details",
+    label: "Facility",
+  },
+  {
+    path: "/leadership",
+    title: "Leadership Contacts",
+    label: "Leadership",
+  },
+  {
+    path: "/sites",
+    title: "Site Information",
+    label: "Sites",
+  },
+  {
+    path: "/services",
+    title: "Services & Certifications",
+    label: "Services",
+  },
+  {
+    path: "/review",
+    title: "Review & Submit",
+    label: "Review",
+  },
+];
+
 export default function App() {
+  const location = useLocation();
+
+  const { formData } = useFormContext();
+
+  const activeStepIndex = STEPS.findIndex(
+    (step) => step.path === location.pathname,
+  );
+
+  const safeStepIndex = activeStepIndex >= 0 ? activeStepIndex : 0;
+
+  const activeStep = STEPS[safeStepIndex];
+
+  const firstName = formData.quoteRequest.firstName;
+
+  const lastName = formData.quoteRequest.lastName;
+
+  const fullName = `${firstName} ${lastName}`.trim() || "DNV User";
+
+  const initials =
+    [firstName, lastName]
+      .filter(Boolean)
+      .map((name) => name.charAt(0).toUpperCase())
+      .join("") || "DU";
+
   return (
-    <Routes>
-      <Route path="/" element={<QuoteRequestStep />} />
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="app-header__brand">DNV Healthcare</div>
 
-      <Route path="/facility" element={<FacilityDetailsStep />} />
+        <div className="app-header__profile">
+          <span className="app-header__profile-name">{fullName}</span>
 
-      <Route path="/leadership" element={<LeadershipStep />} />
+          <div className="app-header__avatar" aria-hidden="true">
+            {initials}
+          </div>
+        </div>
+      </header>
 
-      <Route path="/sites" element={<SiteInformationStep />} />
+      <div className="form-page">
+        <div className="form-container">
+          <div className="step-header">
+            <div className="step-header__top">
+              <h1 className="step-header__title">{activeStep.title}</h1>
 
-      <Route path="/services" element={<ServicesStep />} />
+              <p className="step-header__count">
+                Step {safeStepIndex + 1} of {STEPS.length}
+              </p>
+            </div>
 
-      <Route path="/review" element={<ReviewStep />} />
+            <div className="step-progress" aria-label="Application progress">
+              {STEPS.map((step, index) => {
+                const isComplete = index < safeStepIndex;
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+                const isActive = index === safeStepIndex;
+
+                const classNames = [
+                  "step-progress__item",
+                  isComplete ? "step-progress__item--complete" : "",
+                  isActive ? "step-progress__item--active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+
+                return (
+                  <div
+                    key={step.path}
+                    className={classNames}
+                    aria-current={isActive ? "step" : undefined}
+                  >
+                    <div className="step-progress__track">
+                      <div className="step-progress__fill" />
+                    </div>
+
+                    <span className="step-progress__label">{step.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <Routes>
+            <Route path="/" element={<QuoteRequestStep />} />
+
+            <Route path="/facility" element={<FacilityDetailsStep />} />
+
+            <Route path="/leadership" element={<LeadershipStep />} />
+
+            <Route path="/sites" element={<SiteInformationStep />} />
+
+            <Route path="/services" element={<ServicesStep />} />
+
+            <Route path="/review" element={<ReviewStep />} />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
+
+      <button className="support-chat-button" type="button">
+        Support Chat
+      </button>
+    </div>
   );
 }
