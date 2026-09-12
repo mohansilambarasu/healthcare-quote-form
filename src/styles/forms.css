@@ -279,6 +279,7 @@
   line-height: 27px;
 
   color: var(--color-heading);
+  margin-bottom: 16px;
 }
 
 .radio-group__options {
