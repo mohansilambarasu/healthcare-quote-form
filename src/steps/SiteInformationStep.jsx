@@ -335,7 +335,11 @@ export default function SiteInformationStep() {
                         </div>
 
                         <div className="site-upload-files">
-                          <h3 className="site-upload-files__title">Uploaded</h3>
+                          {files.length > 0 && (
+                            <h3 className="site-upload-files__title">
+                              Uploaded
+                            </h3>
+                          )}
 
                           <div
                             className={[

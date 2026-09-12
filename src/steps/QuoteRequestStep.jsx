@@ -65,16 +65,6 @@ export default function QuoteRequestStep() {
     saveSection("quoteRequest", getValues());
   }
 
-  /*
-    The standalone assessment has no
-    dashboard/parent application route.
-
-    For now Exit preserves the user's
-    current data. Once an actual exit
-    destination exists, navigation can
-    be added here without changing the
-    form architecture.
-  */
   function handleExit() {
     handleSave();
   }
@@ -88,7 +78,7 @@ export default function QuoteRequestStep() {
   }
 
   return (
-    <main>
+    <main className="quote-request-step">
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="form-card quote-request__card">
           <section className="form-section">
@@ -143,7 +133,7 @@ export default function QuoteRequestStep() {
             </div>
           </section>
 
-          <section className="form-section">
+          <section className="form-section quote-request__primary-contact">
             <div className="form-section__header">
               <h2 className="form-section__title">
                 Primary Contact Information

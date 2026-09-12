@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 import { useFormContext } from "./form/FormContext";
 
@@ -54,6 +55,10 @@ export default function App() {
   const safeStepIndex = activeStepIndex >= 0 ? activeStepIndex : 0;
 
   const activeStep = STEPS[safeStepIndex];
+
+  useEffect(() => {
+    document.title = `${activeStep.title} | DNV Healthcare`;
+  }, [activeStep.title]);
 
   const firstName = formData.quoteRequest.firstName;
 

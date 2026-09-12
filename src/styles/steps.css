@@ -431,7 +431,6 @@
   flex-direction: column;
 
   width: 100%;
-  min-height: 533px;
 
   padding: 24px;
 
@@ -545,7 +544,6 @@
   flex-direction: column;
 
   width: 100%;
-  min-height: 116px;
 
   gap: 16px;
 }
@@ -566,13 +564,12 @@
   flex-direction: column;
 
   width: 100%;
-  min-height: 58px;
 
   gap: 16px;
 }
 
 .site-upload-files__list--empty {
-  min-height: 58px;
+  display: none;
 }
 
 .uploaded-file {
@@ -735,10 +732,6 @@
   .option-card {
     height: auto;
     min-height: 102px;
-  }
-
-  .site-upload-panel {
-    min-height: auto;
   }
 
   .site-upload-dropzone {
@@ -1806,4 +1799,16 @@
   .form-actions--services .form-actions__right {
     gap: 8px;
   }
+}
+
+.quote-request-step .quote-request__dba .form-field__label {
+  color: #4e4e4e;
+}
+
+.quote-request-step .quote-request__primary-contact .form-section__title {
+  color: #4e4e4e;
+}
+
+.quote-request-step .quote-request__primary-contact .form-section__description {
+  color: #808080;
 }
