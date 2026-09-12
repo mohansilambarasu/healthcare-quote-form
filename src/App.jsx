@@ -13,32 +13,32 @@ const STEPS = [
   {
     path: "/",
     title: "New DNV Quote Request",
-    label: "Quote Request",
+    label: "DNV Quote Request",
   },
   {
     path: "/facility",
     title: "Facility Details",
-    label: "Facility",
+    label: "Facility Details",
   },
   {
     path: "/leadership",
     title: "Leadership Contacts",
-    label: "Leadership",
+    label: "Leadership Contacts",
   },
   {
     path: "/sites",
     title: "Site Information",
-    label: "Sites",
+    label: "Site Information",
   },
   {
     path: "/services",
     title: "Services & Certifications",
-    label: "Services",
+    label: "Services & Certifications",
   },
   {
     path: "/review",
     title: "Review & Submit",
-    label: "Review",
+    label: "Review & Submit",
   },
 ];
 
@@ -73,11 +73,10 @@ export default function App() {
         <div className="app-header__brand">DNV Healthcare</div>
 
         <div className="app-header__profile">
-          <span className="app-header__profile-name">{fullName}</span>
-
           <div className="app-header__avatar" aria-hidden="true">
             {initials}
           </div>
+          <span className="app-header__profile-name">{fullName}</span>
         </div>
       </header>
 
@@ -92,7 +91,11 @@ export default function App() {
               </p>
             </div>
 
-            <div className="step-progress" aria-label="Application progress">
+            <div
+              className="step-progress"
+              aria-label="Application progress"
+              role="list"
+            >
               {STEPS.map((step, index) => {
                 const isComplete = index < safeStepIndex;
 
@@ -110,6 +113,7 @@ export default function App() {
                   <div
                     key={step.path}
                     className={classNames}
+                    role="listitem"
                     aria-current={isActive ? "step" : undefined}
                   >
                     <div className="step-progress__track">

@@ -37,14 +37,9 @@ button,
 input,
 select,
 textarea {
-  font: inherit;
-}
-
-button,
-input,
-select,
-textarea {
   min-width: 0;
+
+  font: inherit;
 }
 
 button {
@@ -254,12 +249,9 @@ p {
   transition: width var(--transition-progress);
 }
 
-.step-progress__item--complete .step-progress__fill {
-  width: 100%;
-}
-
+.step-progress__item--complete .step-progress__fill,
 .step-progress__item--active .step-progress__fill {
-  width: 77.419%;
+  width: 100%;
 }
 
 .step-progress__label {

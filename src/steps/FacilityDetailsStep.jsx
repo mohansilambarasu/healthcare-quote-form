@@ -40,6 +40,14 @@ export default function FacilityDetailsStep() {
 
   const fieldName = isPrimaryStage ? "facilityType" : "secondaryFacilityType";
 
+  const fieldLabel = isPrimaryStage
+    ? "Facility Type"
+    : "Secondary Facility Type";
+
+  const requiredMessage = isPrimaryStage
+    ? "Select a facility type."
+    : "Select a secondary facility type.";
+
   const error = isPrimaryStage
     ? errors.facilityType
     : errors.secondaryFacilityType;
@@ -55,6 +63,7 @@ export default function FacilityDetailsStep() {
       saveSection("facilityDetails", values);
 
       setStage(1);
+
       return;
     }
 
@@ -76,6 +85,7 @@ export default function FacilityDetailsStep() {
       saveSection("facilityDetails", values);
 
       setStage(2);
+
       return;
     }
 
@@ -102,7 +112,8 @@ export default function FacilityDetailsStep() {
             <div className="form-section__content">
               <fieldset className="radio-group facility-details__radio-group">
                 <legend className="radio-group__legend">
-                  Facility Type
+                  {fieldLabel}
+
                   <span className="form-field__required" aria-hidden="true">
                     *
                   </span>
@@ -116,7 +127,7 @@ export default function FacilityDetailsStep() {
                         type="radio"
                         value={option.value}
                         {...register(fieldName, {
-                          required: "Select a facility type.",
+                          required: requiredMessage,
                         })}
                       />
 
