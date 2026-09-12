@@ -1,68 +1,74 @@
-import { useId, useState } from "react";
+import DatePicker from "./DatePicker";
+
+function formatDate(value) {
+  const [year, month, day] = value.split("-");
+
+  return `${month}/${day}/${year}`;
+}
 
 export default function DateListEditor({
   label,
   dates,
-  maxDates,
   error,
   onAdd,
   onRemove,
 }) {
-  const [pendingDate, setPendingDate] = useState("");
-
-  const inputId = useId();
-  const errorId = `${inputId}-error`;
-
-  function handleAdd() {
-    if (!pendingDate) {
-      return;
-    }
-
-    const added = onAdd(pendingDate);
-
-    if (added) {
-      setPendingDate("");
-    }
-  }
-
   return (
-    <section>
-      <h2>{label}</h2>
+    <div className="multi-date-field">
+      <label className="multi-date-field__label">{label}</label>
 
-      <input
-        id={inputId}
-        type="date"
-        value={pendingDate}
-        aria-invalid={error ? "true" : undefined}
-        aria-describedby={error ? errorId : undefined}
-        onChange={(event) => setPendingDate(event.target.value)}
+      <DatePicker
+        value=""
+        placeholder="mm/dd/yyyy"
+        ariaLabel={label}
+        disabledDates={dates}
+        hasError={Boolean(error)}
+        onConfirm={(date) => onAdd(date)}
       />
 
-      <button type="button" onClick={handleAdd}>
-        Add Date
-      </button>
-
       {error && (
-        <p id={errorId} role="alert">
+        <p className="field-error" role="alert">
           {error}
         </p>
       )}
 
-      <ul>
-        {dates.map((date) => (
-          <li key={date}>
-            {date}
+      {dates.length > 0 && (
+        <div className="multi-date-field__chips">
+          {dates.map((date) => (
+            <span className="date-chip" key={date}>
+              <span>{formatDate(date)}</span>
 
-            <button type="button" onClick={() => onRemove(date)}>
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
+              <button
+                type="button"
+                aria-label={`Remove ${formatDate(date)}`}
+                onClick={() => onRemove(date)}
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2 2L8 8"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
 
-      <p>
-        {dates.length}/{maxDates}
-      </p>
-    </section>
+                  <path
+                    d="M8 2L2 8"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
