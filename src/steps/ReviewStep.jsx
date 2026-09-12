@@ -1,50 +1,43 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import {
+  PRIMARY_FACILITY_TYPES,
+  SECONDARY_FACILITY_TYPES,
+  SERVICES,
+  STANDARDS,
+  getOptionLabel,
+} from "../data/quoteOptions";
 import { useFormContext } from "../form/FormContext";
 
-const LABELS = {
-  "short-term-acute-care": "Short-Term Acute Care",
-
-  "long-term-acute-care": "Long-Term Acute Care",
-
-  "long-term-acute-care-ltac": "Long-Term Acute Care (LTAC)",
-
-  "critical-access": "Critical Access",
-
-  childrens: "Children's",
-
-  "free-standing-psychiatric": "Free-Standing Psychiatric",
-
-  other: "Other",
-
+const SITE_LABELS = {
   single: "Single Location",
   multiple: "Multiple Locations",
   spreadsheet: "Spreadsheet Upload",
-
-  "acute-stroke-ready-center": "Acute Stroke Ready Center",
-
-  "primary-stroke-center": "Primary Stroke Center",
-
-  "comprehensive-stroke-center": "Comprehensive Stroke Center",
-
-  "hip-knee-replacement": "Hip & Knee Replacement",
-
-  "cardiac-care": "Cardiac Care",
-
-  "dnv-healthcare": "DNV Healthcare",
-
-  "iso-9001": "ISO 9001",
-
-  "niche-certification": "Niche Certification",
 };
 
-function displayValue(value) {
+function displayText(value) {
   if (value === "" || value === null || value === undefined) {
     return "Not provided";
   }
 
-  return LABELS[value] ?? value;
+  return value;
+}
+
+function displayOption(options, value) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  return getOptionLabel(options, value);
+}
+
+function displaySiteValue(value) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  return SITE_LABELS[value] ?? value;
 }
 
 function formatDate(value) {
@@ -130,24 +123,24 @@ export default function ReviewStep() {
           Edit
         </button>
 
-        <p>Legal Entity: {displayValue(quoteRequest.legalEntityName)}</p>
+        <p>Legal Entity: {displayText(quoteRequest.legalEntityName)}</p>
 
-        <p>DBA: {displayValue(quoteRequest.dbaName)}</p>
+        <p>DBA: {displayText(quoteRequest.dbaName)}</p>
 
         <p>
           Primary Contact:{" "}
-          {displayValue(
+          {displayText(
             `${quoteRequest.firstName} ${quoteRequest.lastName}`.trim(),
           )}
         </p>
 
-        <p>Title: {displayValue(quoteRequest.title)}</p>
+        <p>Title: {displayText(quoteRequest.title)}</p>
 
-        <p>Work Phone: {displayValue(quoteRequest.workPhone)}</p>
+        <p>Work Phone: {displayText(quoteRequest.workPhone)}</p>
 
-        <p>Cell Phone: {displayValue(quoteRequest.cellPhone)}</p>
+        <p>Cell Phone: {displayText(quoteRequest.cellPhone)}</p>
 
-        <p>Email: {displayValue(quoteRequest.email)}</p>
+        <p>Email: {displayText(quoteRequest.email)}</p>
       </section>
 
       <hr />
@@ -159,11 +152,17 @@ export default function ReviewStep() {
           Edit
         </button>
 
-        <p>Primary Facility: {displayValue(facilityDetails.facilityType)}</p>
+        <p>
+          Primary Facility:{" "}
+          {displayOption(PRIMARY_FACILITY_TYPES, facilityDetails.facilityType)}
+        </p>
 
         <p>
           Secondary Facility:{" "}
-          {displayValue(facilityDetails.secondaryFacilityType)}
+          {displayOption(
+            SECONDARY_FACILITY_TYPES,
+            facilityDetails.secondaryFacilityType,
+          )}
         </p>
       </section>
 
@@ -194,23 +193,23 @@ export default function ReviewStep() {
             <h3>{label}</h3>
 
             <p>
-              Name: {displayValue(`${data.firstName} ${data.lastName}`.trim())}
+              Name: {displayText(`${data.firstName} ${data.lastName}`.trim())}
             </p>
 
-            <p>Phone: {displayValue(data.phone)}</p>
+            <p>Phone: {displayText(data.phone)}</p>
 
-            <p>Email: {displayValue(data.email)}</p>
+            <p>Email: {displayText(data.email)}</p>
           </div>
         ))}
 
         <h3>Billing Address</h3>
 
-        <p>{leadershipContacts.billingAddress.streetAddress}</p>
+        <p>{displayText(leadershipContacts.billingAddress.streetAddress)}</p>
 
         <p>
-          {leadershipContacts.billingAddress.city},{" "}
-          {leadershipContacts.billingAddress.state}{" "}
-          {leadershipContacts.billingAddress.zipCode}
+          {displayText(leadershipContacts.billingAddress.city)},{" "}
+          {displayText(leadershipContacts.billingAddress.state)}{" "}
+          {displayText(leadershipContacts.billingAddress.zipCode)}
         </p>
       </section>
 
@@ -223,11 +222,13 @@ export default function ReviewStep() {
           Edit
         </button>
 
-        <p>Location Type: {displayValue(siteInformation.locationType)}</p>
+        <p>Location Type: {displaySiteValue(siteInformation.locationType)}</p>
 
         {siteInformation.locationType === "multiple" && (
           <>
-            <p>Upload Method: {displayValue(siteInformation.uploadMethod)}</p>
+            <p>
+              Upload Method: {displaySiteValue(siteInformation.uploadMethod)}
+            </p>
 
             <h3>Uploaded Files</h3>
 
@@ -255,7 +256,7 @@ export default function ReviewStep() {
 
         <ul>
           {servicesCertifications.selectedServices.map((service) => (
-            <li key={service}>{displayValue(service)}</li>
+            <li key={service}>{getOptionLabel(SERVICES, service)}</li>
           ))}
 
           {servicesCertifications.customServices.map((service, index) => (
@@ -267,7 +268,7 @@ export default function ReviewStep() {
 
         <ul>
           {servicesCertifications.selectedStandards.map((standard) => (
-            <li key={standard}>{displayValue(standard)}</li>
+            <li key={standard}>{getOptionLabel(STANDARDS, standard)}</li>
           ))}
         </ul>
 

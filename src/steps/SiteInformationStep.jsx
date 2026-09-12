@@ -1,7 +1,7 @@
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
 
 import { useFormContext } from "../form/FormContext";
+import { useStepNavigation } from "../form/useStepNavigation";
 
 const ACCEPTED_EXTENSIONS = [".csv", ".xls", ".xlsx"];
 
@@ -21,10 +21,13 @@ function isDuplicateFile(file, files) {
 }
 
 export default function SiteInformationStep() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { formData } = useFormContext();
 
-  const { formData, saveSection } = useFormContext();
+  const { saveAndBack, saveAndContinue } = useStepNavigation({
+    section: "siteInformation",
+    previousPath: "/leadership",
+    nextPath: "/services",
+  });
 
   const {
     register,
@@ -53,8 +56,6 @@ export default function SiteInformationStep() {
     name: "uploadMethod",
   });
 
-  const returnTo = location.state?.returnTo;
-
   function handleLocationChange(event) {
     if (event.target.value === "single") {
       setValue("uploadMethod", "");
@@ -77,6 +78,7 @@ export default function SiteInformationStep() {
       });
 
       event.target.value = "";
+
       return;
     }
 
@@ -114,7 +116,6 @@ export default function SiteInformationStep() {
     const link = document.createElement("a");
 
     link.href = url;
-
     link.download = "site-template.csv";
 
     link.click();
@@ -123,9 +124,7 @@ export default function SiteInformationStep() {
   }
 
   function handleBack() {
-    saveSection("siteInformation", getValues());
-
-    navigate("/leadership");
+    saveAndBack(getValues());
   }
 
   function onSubmit(values) {
@@ -147,14 +146,7 @@ export default function SiteInformationStep() {
       return;
     }
 
-    saveSection("siteInformation", values);
-
-    if (returnTo) {
-      navigate(returnTo);
-      return;
-    }
-
-    navigate("/services");
+    saveAndContinue(values);
   }
 
   return (

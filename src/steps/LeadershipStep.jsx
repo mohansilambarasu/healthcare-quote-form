@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
 
+import TextField from "../components/TextField";
 import { useFormContext } from "../form/FormContext";
+import { useStepNavigation } from "../form/useStepNavigation";
 import {
   isValidEmail,
   isValidPhone,
@@ -82,10 +83,13 @@ const STATES = [
 ];
 
 export default function LeadershipStep() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { formData } = useFormContext();
 
-  const { formData, saveSection } = useFormContext();
+  const { saveAndBack, saveAndContinue } = useStepNavigation({
+    section: "leadershipContacts",
+    previousPath: "/facility",
+    nextPath: "/sites",
+  });
 
   const {
     register,
@@ -102,12 +106,23 @@ export default function LeadershipStep() {
     shouldFocusError: true,
   });
 
-  const sameAsPrimaryValues = useWatch({
-    control,
-    name: CONTACTS.map(({ key }) => `${key}.sameAsPrimary`),
-  });
+  const watchedSameAsPrimary =
+    useWatch({
+      control,
+      name: CONTACTS.map(({ key }) => `${key}.sameAsPrimary`),
+    }) ?? [];
 
-  const returnTo = location.state?.returnTo;
+  const [
+    ceoSameAsPrimary = false,
+    directorSameAsPrimary = false,
+    invoicingSameAsPrimary = false,
+  ] = watchedSameAsPrimary;
+
+  const sameAsPrimaryValues = [
+    ceoSameAsPrimary,
+    directorSameAsPrimary,
+    invoicingSameAsPrimary,
+  ];
 
   const primaryContact = {
     firstName: formData.quoteRequest.firstName,
@@ -139,17 +154,40 @@ export default function LeadershipStep() {
   }
 
   useEffect(() => {
+    const latestPrimaryContact = {
+      firstName: formData.quoteRequest.firstName,
+      lastName: formData.quoteRequest.lastName,
+      phone: formData.quoteRequest.workPhone,
+      email: formData.quoteRequest.email,
+    };
+
+    const watchedValues = [
+      ceoSameAsPrimary,
+      directorSameAsPrimary,
+      invoicingSameAsPrimary,
+    ];
+
     CONTACTS.forEach(({ key }, index) => {
-      if (sameAsPrimaryValues?.[index]) {
-        copyPrimary(key);
+      if (!watchedValues[index]) {
+        return;
       }
+
+      Object.entries(latestPrimaryContact).forEach(([field, value]) => {
+        setValue(`${key}.${field}`, value, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      });
     });
   }, [
+    ceoSameAsPrimary,
+    directorSameAsPrimary,
+    invoicingSameAsPrimary,
     formData.quoteRequest.firstName,
     formData.quoteRequest.lastName,
     formData.quoteRequest.workPhone,
     formData.quoteRequest.email,
-    ...sameAsPrimaryValues,
+    setValue,
   ]);
 
   function contactHasValue(contactKey) {
@@ -212,20 +250,11 @@ export default function LeadershipStep() {
   }
 
   function handleBack() {
-    saveSection("leadershipContacts", getValues());
-
-    navigate("/facility");
+    saveAndBack(getValues());
   }
 
   function onSubmit(values) {
-    saveSection("leadershipContacts", values);
-
-    if (returnTo) {
-      navigate(returnTo);
-      return;
-    }
-
-    navigate("/sites");
+    saveAndContinue(values);
   }
 
   return (
@@ -238,7 +267,7 @@ export default function LeadershipStep() {
         {CONTACTS.map(({ key, label, required }, index) => {
           const contactErrors = errors[key];
 
-          const sameAsPrimary = Boolean(sameAsPrimaryValues?.[index]);
+          const sameAsPrimary = Boolean(sameAsPrimaryValues[index]);
 
           return (
             <fieldset key={key}>
@@ -263,69 +292,57 @@ export default function LeadershipStep() {
                 Same as Primary Contact
               </label>
 
-              <div>
-                <label htmlFor={`${key}-firstName`}>First Name</label>
+              <TextField
+                id={`${key}-firstName`}
+                label="First Name"
+                error={contactErrors?.firstName?.message}
+                inputProps={{
+                  readOnly: sameAsPrimary,
 
-                <input
-                  id={`${key}-firstName`}
-                  readOnly={sameAsPrimary}
-                  {...register(
+                  ...register(
                     `${key}.firstName`,
                     textRules(key, "First Name", required),
-                  )}
-                />
+                  ),
+                }}
+              />
 
-                {contactErrors?.firstName && (
-                  <p role="alert">{contactErrors.firstName.message}</p>
-                )}
-              </div>
+              <TextField
+                id={`${key}-lastName`}
+                label="Last Name"
+                error={contactErrors?.lastName?.message}
+                inputProps={{
+                  readOnly: sameAsPrimary,
 
-              <div>
-                <label htmlFor={`${key}-lastName`}>Last Name</label>
-
-                <input
-                  id={`${key}-lastName`}
-                  readOnly={sameAsPrimary}
-                  {...register(
+                  ...register(
                     `${key}.lastName`,
                     textRules(key, "Last Name", required),
-                  )}
-                />
+                  ),
+                }}
+              />
 
-                {contactErrors?.lastName && (
-                  <p role="alert">{contactErrors.lastName.message}</p>
-                )}
-              </div>
+              <TextField
+                id={`${key}-phone`}
+                label="Phone"
+                error={contactErrors?.phone?.message}
+                inputProps={{
+                  type: "tel",
+                  readOnly: sameAsPrimary,
 
-              <div>
-                <label htmlFor={`${key}-phone`}>Phone</label>
+                  ...register(`${key}.phone`, phoneRules(key, required)),
+                }}
+              />
 
-                <input
-                  id={`${key}-phone`}
-                  type="tel"
-                  readOnly={sameAsPrimary}
-                  {...register(`${key}.phone`, phoneRules(key, required))}
-                />
+              <TextField
+                id={`${key}-email`}
+                label="Email"
+                error={contactErrors?.email?.message}
+                inputProps={{
+                  type: "email",
+                  readOnly: sameAsPrimary,
 
-                {contactErrors?.phone && (
-                  <p role="alert">{contactErrors.phone.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor={`${key}-email`}>Email</label>
-
-                <input
-                  id={`${key}-email`}
-                  type="email"
-                  readOnly={sameAsPrimary}
-                  {...register(`${key}.email`, emailRules(key, required))}
-                />
-
-                {contactErrors?.email && (
-                  <p role="alert">{contactErrors.email.message}</p>
-                )}
-              </div>
+                  ...register(`${key}.email`, emailRules(key, required)),
+                }}
+              />
             </fieldset>
           );
         })}
@@ -333,35 +350,27 @@ export default function LeadershipStep() {
         <fieldset>
           <legend>Billing Address</legend>
 
-          <div>
-            <label htmlFor="streetAddress">Street Address</label>
-
-            <input
-              id="streetAddress"
-              {...register("billingAddress.streetAddress", {
+          <TextField
+            id="streetAddress"
+            label="Street Address"
+            error={errors.billingAddress?.streetAddress?.message}
+            inputProps={{
+              ...register("billingAddress.streetAddress", {
                 required: "Street Address is required.",
-              })}
-            />
+              }),
+            }}
+          />
 
-            {errors.billingAddress?.streetAddress && (
-              <p role="alert">{errors.billingAddress.streetAddress.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="city">City</label>
-
-            <input
-              id="city"
-              {...register("billingAddress.city", {
+          <TextField
+            id="city"
+            label="City"
+            error={errors.billingAddress?.city?.message}
+            inputProps={{
+              ...register("billingAddress.city", {
                 required: "City is required.",
-              })}
-            />
-
-            {errors.billingAddress?.city && (
-              <p role="alert">{errors.billingAddress.city.message}</p>
-            )}
-          </div>
+              }),
+            }}
+          />
 
           <div>
             <label htmlFor="state">State</label>
@@ -371,6 +380,10 @@ export default function LeadershipStep() {
               {...register("billingAddress.state", {
                 required: "State is required.",
               })}
+              aria-invalid={errors.billingAddress?.state ? "true" : undefined}
+              aria-describedby={
+                errors.billingAddress?.state ? "state-error" : undefined
+              }
             >
               <option value="">Select state</option>
 
@@ -382,28 +395,27 @@ export default function LeadershipStep() {
             </select>
 
             {errors.billingAddress?.state && (
-              <p role="alert">{errors.billingAddress.state.message}</p>
+              <p id="state-error" role="alert">
+                {errors.billingAddress.state.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <label htmlFor="zipCode">ZIP Code</label>
+          <TextField
+            id="zipCode"
+            label="ZIP Code"
+            error={errors.billingAddress?.zipCode?.message}
+            inputProps={{
+              inputMode: "numeric",
 
-            <input
-              id="zipCode"
-              inputMode="numeric"
-              {...register("billingAddress.zipCode", {
+              ...register("billingAddress.zipCode", {
                 required: "ZIP Code is required.",
 
                 validate: (value) =>
                   isValidZipCode(value) || "Enter a valid ZIP Code.",
-              })}
-            />
-
-            {errors.billingAddress?.zipCode && (
-              <p role="alert">{errors.billingAddress.zipCode.message}</p>
-            )}
-          </div>
+              }),
+            }}
+          />
         </fieldset>
 
         <button type="button" onClick={handleBack}>

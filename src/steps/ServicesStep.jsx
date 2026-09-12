@@ -1,46 +1,9 @@
-import { useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
 
+import DateListEditor from "../components/DateListEditor";
+import { SERVICES, STANDARDS } from "../data/quoteOptions";
 import { useFormContext } from "../form/FormContext";
-
-const SERVICES = [
-  {
-    value: "acute-stroke-ready-center",
-    label: "Acute Stroke Ready Center",
-  },
-  {
-    value: "primary-stroke-center",
-    label: "Primary Stroke Center",
-  },
-  {
-    value: "comprehensive-stroke-center",
-    label: "Comprehensive Stroke Center",
-  },
-  {
-    value: "hip-knee-replacement",
-    label: "Hip & Knee Replacement",
-  },
-  {
-    value: "cardiac-care",
-    label: "Cardiac Care",
-  },
-];
-
-const STANDARDS = [
-  {
-    value: "dnv-healthcare",
-    label: "DNV Healthcare",
-  },
-  {
-    value: "iso-9001",
-    label: "ISO 9001",
-  },
-  {
-    value: "niche-certification",
-    label: "Niche Certification",
-  },
-];
+import { useStepNavigation } from "../form/useStepNavigation";
 
 const MAX_THROMBOLYTIC_DATES = 25;
 const MAX_THROMBECTOMY_DATES = 15;
@@ -50,14 +13,13 @@ function normalize(value = "") {
 }
 
 export default function ServicesStep() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { formData } = useFormContext();
 
-  const { formData, saveSection } = useFormContext();
-
-  const [pendingThrombolyticDate, setPendingThrombolyticDate] = useState("");
-
-  const [pendingThrombectomyDate, setPendingThrombectomyDate] = useState("");
+  const { saveAndBack, saveAndContinue } = useStepNavigation({
+    section: "servicesCertifications",
+    previousPath: "/sites",
+    nextPath: "/review",
+  });
 
   const {
     register,
@@ -97,8 +59,6 @@ export default function ServicesStep() {
       name: "thrombectomyDates",
     }) ?? [];
 
-  const returnTo = location.state?.returnTo;
-
   function validateCustomService(value, index) {
     const normalizedValue = normalize(value);
 
@@ -128,20 +88,20 @@ export default function ServicesStep() {
     return true;
   }
 
-  function addDate({ fieldName, pendingDate, maxDates, clearPendingDate }) {
-    if (!pendingDate) {
-      return;
+  function addDate({ fieldName, date, maxDates }) {
+    if (!date) {
+      return false;
     }
 
     const dates = getValues(fieldName) ?? [];
 
-    if (dates.includes(pendingDate)) {
+    if (dates.includes(date)) {
       setError(fieldName, {
         type: "duplicate",
         message: "This date has already been added.",
       });
 
-      return;
+      return false;
     }
 
     if (dates.length >= maxDates) {
@@ -150,15 +110,17 @@ export default function ServicesStep() {
         message: `Maximum ${maxDates} dates allowed.`,
       });
 
-      return;
+      return false;
     }
 
-    setValue(fieldName, [...dates, pendingDate], {
+    setValue(fieldName, [...dates, date], {
       shouldDirty: true,
+      shouldValidate: true,
     });
 
     clearErrors(fieldName);
-    clearPendingDate("");
+
+    return true;
   }
 
   function removeDate(fieldName, dateToRemove) {
@@ -169,6 +131,7 @@ export default function ServicesStep() {
       dates.filter((date) => date !== dateToRemove),
       {
         shouldDirty: true,
+        shouldValidate: true,
       },
     );
 
@@ -176,18 +139,17 @@ export default function ServicesStep() {
   }
 
   function handleBack() {
-    saveSection("servicesCertifications", getValues());
-
-    navigate("/sites");
+    saveAndBack(getValues());
   }
 
   function onSubmit(values) {
-    const validCustomServices = values.customServices.filter((service) =>
-      service.name?.trim(),
+    const validCustomServices = (values.customServices ?? []).filter(
+      (service) => service.name?.trim(),
     );
 
     const hasService =
-      values.selectedServices.length > 0 || validCustomServices.length > 0;
+      (values.selectedServices?.length ?? 0) > 0 ||
+      validCustomServices.length > 0;
 
     if (!hasService) {
       setError("selectedServices", {
@@ -206,14 +168,7 @@ export default function ServicesStep() {
       })),
     };
 
-    saveSection("servicesCertifications", cleanedValues);
-
-    if (returnTo) {
-      navigate(returnTo);
-      return;
-    }
-
-    navigate("/review");
+    saveAndContinue(cleanedValues);
   }
 
   return (
@@ -289,7 +244,7 @@ export default function ServicesStep() {
                 value={standard.value}
                 {...register("selectedStandards", {
                   validate: (values) =>
-                    values.length > 0 ||
+                    (values?.length ?? 0) > 0 ||
                     "Select at least one certification standard.",
                 })}
               />
@@ -327,113 +282,49 @@ export default function ServicesStep() {
               {...register("applicationDate", {
                 required: "Application Date is required.",
               })}
+              aria-invalid={errors.applicationDate ? "true" : undefined}
+              aria-describedby={
+                errors.applicationDate ? "applicationDate-error" : undefined
+              }
             />
 
             {errors.applicationDate && (
-              <p role="alert">{errors.applicationDate.message}</p>
+              <p id="applicationDate-error" role="alert">
+                {errors.applicationDate.message}
+              </p>
             )}
           </div>
         </section>
 
-        <section>
-          <h2>Thrombolytic Dates</h2>
+        <DateListEditor
+          label="Thrombolytic Dates"
+          dates={thrombolyticDates}
+          maxDates={MAX_THROMBOLYTIC_DATES}
+          error={errors.thrombolyticDates?.message}
+          onAdd={(date) =>
+            addDate({
+              fieldName: "thrombolyticDates",
+              date,
+              maxDates: MAX_THROMBOLYTIC_DATES,
+            })
+          }
+          onRemove={(date) => removeDate("thrombolyticDates", date)}
+        />
 
-          <input
-            type="date"
-            value={pendingThrombolyticDate}
-            onChange={(event) => setPendingThrombolyticDate(event.target.value)}
-          />
-
-          <button
-            type="button"
-            onClick={() =>
-              addDate({
-                fieldName: "thrombolyticDates",
-
-                pendingDate: pendingThrombolyticDate,
-
-                maxDates: MAX_THROMBOLYTIC_DATES,
-
-                clearPendingDate: setPendingThrombolyticDate,
-              })
-            }
-          >
-            Add Date
-          </button>
-
-          {errors.thrombolyticDates && (
-            <p role="alert">{errors.thrombolyticDates.message}</p>
-          )}
-
-          <ul>
-            {thrombolyticDates.map((date) => (
-              <li key={date}>
-                {date}
-
-                <button
-                  type="button"
-                  onClick={() => removeDate("thrombolyticDates", date)}
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <p>
-            {thrombolyticDates.length}/{MAX_THROMBOLYTIC_DATES}
-          </p>
-        </section>
-
-        <section>
-          <h2>Thrombectomy Dates</h2>
-
-          <input
-            type="date"
-            value={pendingThrombectomyDate}
-            onChange={(event) => setPendingThrombectomyDate(event.target.value)}
-          />
-
-          <button
-            type="button"
-            onClick={() =>
-              addDate({
-                fieldName: "thrombectomyDates",
-
-                pendingDate: pendingThrombectomyDate,
-
-                maxDates: MAX_THROMBECTOMY_DATES,
-
-                clearPendingDate: setPendingThrombectomyDate,
-              })
-            }
-          >
-            Add Date
-          </button>
-
-          {errors.thrombectomyDates && (
-            <p role="alert">{errors.thrombectomyDates.message}</p>
-          )}
-
-          <ul>
-            {thrombectomyDates.map((date) => (
-              <li key={date}>
-                {date}
-
-                <button
-                  type="button"
-                  onClick={() => removeDate("thrombectomyDates", date)}
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <p>
-            {thrombectomyDates.length}/{MAX_THROMBECTOMY_DATES}
-          </p>
-        </section>
+        <DateListEditor
+          label="Thrombectomy Dates"
+          dates={thrombectomyDates}
+          maxDates={MAX_THROMBECTOMY_DATES}
+          error={errors.thrombectomyDates?.message}
+          onAdd={(date) =>
+            addDate({
+              fieldName: "thrombectomyDates",
+              date,
+              maxDates: MAX_THROMBECTOMY_DATES,
+            })
+          }
+          onRemove={(date) => removeDate("thrombectomyDates", date)}
+        />
 
         <button type="button" onClick={handleBack}>
           Previous

@@ -1,67 +1,20 @@
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
 
+import {
+  PRIMARY_FACILITY_TYPES,
+  SECONDARY_FACILITY_TYPES,
+} from "../data/quoteOptions";
 import { useFormContext } from "../form/FormContext";
-
-const PRIMARY_FACILITY_TYPES = [
-  {
-    value: "short-term-acute-care",
-    label: "Short-Term Acute Care",
-  },
-  {
-    value: "long-term-acute-care",
-    label: "Long-Term Acute Care",
-  },
-  {
-    value: "critical-access",
-    label: "Critical Access",
-  },
-  {
-    value: "childrens",
-    label: "Children's",
-  },
-  {
-    value: "free-standing-psychiatric",
-    label: "Free-Standing Psychiatric",
-  },
-  {
-    value: "other",
-    label: "Other",
-  },
-];
-
-const SECONDARY_FACILITY_TYPES = [
-  {
-    value: "same-as-legal-entity",
-    label: "Same as Legal Entity Name",
-  },
-  {
-    value: "critical-access",
-    label: "Critical Access",
-  },
-  {
-    value: "childrens",
-    label: "Children's",
-  },
-  {
-    value: "long-term-acute-care-ltac",
-    label: "Long-Term Acute Care (LTAC)",
-  },
-  {
-    value: "free-standing-psychiatric",
-    label: "Free-Standing Psychiatric",
-  },
-  {
-    value: "other",
-    label: "Other",
-  },
-];
+import { useStepNavigation } from "../form/useStepNavigation";
 
 export default function FacilityDetailsStep() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { formData } = useFormContext();
 
-  const { formData, saveSection } = useFormContext();
+  const { saveAndBack, saveAndContinue } = useStepNavigation({
+    section: "facilityDetails",
+    previousPath: "/",
+    nextPath: "/leadership",
+  });
 
   const {
     register,
@@ -76,25 +29,12 @@ export default function FacilityDetailsStep() {
     shouldFocusError: true,
   });
 
-  const returnTo = location.state?.returnTo;
-
   function handleBack() {
-    saveSection("facilityDetails", getValues());
-
-    navigate("/");
+    saveAndBack(getValues());
   }
 
   function onSubmit(values) {
-    saveSection("facilityDetails", values);
-
-    if (returnTo) {
-      navigate(returnTo);
-      return;
-    }
-
-    // Step 3 will replace this destination
-    // as soon as Leadership Contacts is added.
-    navigate("/leadership");
+    saveAndContinue(values);
   }
 
   return (
