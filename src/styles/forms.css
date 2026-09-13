@@ -5,9 +5,9 @@
   width: 100%;
   max-width: var(--content-max-width);
 
-  padding: 40px 32px 64px;
+  padding: var(--space-40) var(--space-32) var(--space-64);
 
-  gap: 32px;
+  gap: var(--space-32);
 
   background: var(--color-white);
 
@@ -22,14 +22,14 @@
 
   width: 100%;
 
-  gap: 32px;
+  gap: var(--space-32);
 }
 
 .form-section__header {
   display: flex;
   flex-direction: column;
 
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 .form-section__title {
@@ -60,7 +60,7 @@
 
   width: 100%;
 
-  gap: 32px;
+  gap: var(--space-32);
 }
 
 .form-row {
@@ -68,7 +68,7 @@
 
   width: 100%;
 
-  gap: 16px;
+  gap: var(--space-16);
 }
 
 .form-row--2 {
@@ -85,22 +85,22 @@
 
   width: 100%;
 
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 .form-field__label {
-  margin-bottom: 2px;
+  margin-bottom: var(--space-2);
 
   font-family: var(--font-family-base);
   font-size: var(--font-size-16);
   font-weight: var(--font-weight-bold);
-  line-height: 22px;
+  line-height: var(--line-height-field-label);
 
   color: var(--color-heading);
 }
 
 .form-field__required {
-  margin-left: 2px;
+  margin-left: var(--space-2);
 
   color: var(--color-required);
 }
@@ -111,7 +111,7 @@
 
   padding: 13px;
 
-  border: 1px solid var(--color-border-control);
+  border: var(--border-width-default) solid var(--color-border-control);
   border-radius: var(--radius-input);
 
   outline: none;
@@ -176,16 +176,16 @@
 
   width: 100%;
 
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 .select-field__label {
-  margin-bottom: 2px;
+  margin-bottom: var(--space-2);
 
   font-family: var(--font-family-base);
   font-size: var(--font-size-16);
   font-weight: var(--font-weight-bold);
-  line-height: 22px;
+  line-height: var(--line-height-field-label);
 
   color: var(--color-heading);
 }
@@ -196,7 +196,7 @@
 
   padding: 0 13px;
 
-  border: 1px solid var(--color-border-control);
+  border: var(--border-width-default) solid var(--color-border-control);
   border-radius: var(--radius-input);
 
   outline: none;
@@ -230,7 +230,7 @@
 
   width: fit-content;
 
-  gap: 8px;
+  gap: var(--space-8);
 
   cursor: pointer;
 }
@@ -266,7 +266,7 @@
 
   border: 0;
 
-  gap: 16px;
+  gap: var(--space-16);
 }
 
 .radio-group__legend {
@@ -279,7 +279,7 @@
   line-height: 27px;
 
   color: var(--color-heading);
-  margin-bottom: 16px;
+  margin-bottom: var(--space-16);
 }
 
 .radio-group__options {
@@ -288,7 +288,7 @@
 
   width: 100%;
 
-  gap: 16px;
+  gap: var(--space-16);
 }
 
 .radio-group__option {
@@ -297,7 +297,7 @@
 
   width: fit-content;
 
-  gap: 8px;
+  gap: var(--space-8);
 
   font-family: var(--font-family-base);
   font-size: var(--font-size-16);
@@ -356,9 +356,9 @@
 .button--md {
   height: var(--button-height-md);
 
-  padding: 0 31px;
+  padding: 0 var(--space-31);
 
-  gap: 12px;
+  gap: var(--space-12);
 
   font-size: var(--font-size-16);
 }
@@ -366,9 +366,9 @@
 .button--sm {
   height: var(--button-height-sm);
 
-  padding: 0 23px;
+  padding: 0 var(--space-23);
 
-  gap: 6px;
+  gap: var(--space-6);
 
   font-size: var(--font-size-14);
 }
@@ -386,7 +386,7 @@
 }
 
 .button--secondary {
-  border: 1.5px solid var(--color-primary);
+  border: var(--border-width-action) solid var(--color-primary);
 
   background: var(--color-white);
 
@@ -426,14 +426,14 @@
   max-width: var(--content-max-width);
   min-height: var(--button-height-md);
 
-  margin-top: 40px;
+  margin-top: var(--space-40);
 }
 
 .form-actions__right {
   display: flex;
   align-items: center;
 
-  gap: 32px;
+  gap: var(--space-32);
 }
 
 @media (max-width: 768px) {
@@ -444,15 +444,15 @@
 
 @media (max-width: 480px) {
   .form-card {
-    padding: 28px 24px;
+    padding: 28px var(--space-24);
   }
 
   .form-section {
-    gap: 24px;
+    gap: var(--space-24);
   }
 
   .form-section__content {
-    gap: 24px;
+    gap: var(--space-24);
   }
 
   .form-section__title {
@@ -461,13 +461,13 @@
   }
 
   .form-actions {
-    gap: 8px;
+    gap: var(--space-8);
 
-    margin-top: 32px;
+    margin-top: var(--space-32);
   }
 
   .form-actions__right {
-    gap: 8px;
+    gap: var(--space-8);
   }
 
   .form-actions .button {
